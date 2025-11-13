@@ -34,27 +34,26 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/juegos/puzzle"
+            href="/games/animals"
             className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
           >
             <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
-              Puzzle
+              Acierta el animal
             </h2>
             <p className="text-sm text-zinc-400">
-              Ordena piezas, resuelve patrones y reta tu pensamiento lógico.
+              Un animal, cuatro opciones y solo una es correcta
             </p>
           </Link>
 
           <Link
-            href="/juegos/trivia"
+            href="/games/colors"
             className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
           >
             <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
-              Trivia
+              Colores
             </h2>
             <p className="text-sm text-zinc-400">
-              Preguntas rápidas, respuestas aún más rápidas. Demuestra lo que
-              sabes.
+              Elige el color correcto según la palabra, no según el color del texto.
             </p>
           </Link>
         </div>

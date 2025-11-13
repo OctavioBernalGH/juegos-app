@@ -2,30 +2,61 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import ReactCountryFlag from "react-country-flag";
-import countries from "world-countries";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
-type Flag = {
-    country: string;
-    code: string; // ISO 3166-1 alpha-2
+type ColorId = "red" | "blue" | "green" | "yellow";
+
+type ColorDef = {
+    id: ColorId;
+    name: string;
+    emoji: string;
+    textClass: string;
+    bgClass: string;
+    borderClass: string;
 };
 
 type Round = {
-    flag: Flag;
-    options: Flag[];
+    target: ColorDef;       // La palabra: lo que hay que elegir
+    displayColor: ColorDef; // El color real del texto (para confundir)
 };
 
-// Todas (o casi todas) las banderas posibles usando world-countries
-const FLAGS: Flag[] = countries
-    .filter((c: any) => typeof c.cca2 === "string" && c.cca2.length === 2)
-    .map((c: any) => ({
-        country: c.translations?.spa?.common || c.name.common,
-        code: c.cca2 as string,
-    }));
+const COLORS: ColorDef[] = [
+    {
+        id: "red",
+        name: "ROJO",
+        emoji: "🔴",
+        textClass: "text-red-400",
+        bgClass: "bg-red-600",
+        borderClass: "border-red-500",
+    },
+    {
+        id: "blue",
+        name: "AZUL",
+        emoji: "🔵",
+        textClass: "text-sky-400",
+        bgClass: "bg-sky-600",
+        borderClass: "border-sky-500",
+    },
+    {
+        id: "green",
+        name: "VERDE",
+        emoji: "🟢",
+        textClass: "text-emerald-400",
+        bgClass: "bg-emerald-600",
+        borderClass: "border-emerald-500",
+    },
+    {
+        id: "yellow",
+        name: "AMARILLO",
+        emoji: "🟡",
+        textClass: "text-yellow-300",
+        bgClass: "bg-yellow-500",
+        borderClass: "border-yellow-400",
+    },
+];
 
 function shuffleArray<T>(array: T[]): T[] {
     const copy = [...array];
@@ -36,21 +67,20 @@ function shuffleArray<T>(array: T[]): T[] {
     return copy;
 }
 
+// Crea una ronda nueva (palabra objetivo + color visual del texto)
 function createRound(): Round {
-    const correctFlag = FLAGS[Math.floor(Math.random() * FLAGS.length)];
-    const otherFlags = FLAGS.filter((f) => f.country !== correctFlag.country);
-    const randomOthers = shuffleArray(otherFlags).slice(0, 3);
-    const options = shuffleArray([correctFlag, ...randomOthers]);
+    const target = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-    return {
-        flag: correctFlag,
-        options,
-    };
+    // Para el color de visualización, elegimos aleatorio (a veces coincide, a veces no)
+    const displayColor =
+        COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    return { target, displayColor };
 }
 
-export default function FlagGamePage() {
+export default function ColorsGamePage() {
     const [round, setRound] = useState<Round | null>(null);
-    const [selected, setSelected] = useState<Flag | null>(null);
+    const [selectedId, setSelectedId] = useState<ColorId | null>(null);
     const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
     const [showConfetti, setShowConfetti] = useState(false);
     const [showErrorEffect, setShowErrorEffect] = useState(false);
@@ -63,9 +93,17 @@ export default function FlagGamePage() {
         null
     );
 
-    // Primera ronda sólo en cliente (evita errores de hidratación)
+    // Primera ronda solo en cliente (evitar historias de hidratación)
     useEffect(() => {
         setRound(createRound());
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            if (autoNextTimeoutRef.current) clearTimeout(autoNextTimeoutRef.current);
+            if (errorEffectTimeoutRef.current)
+                clearTimeout(errorEffectTimeoutRef.current);
+        };
     }, []);
 
     const handleNext = () => {
@@ -79,30 +117,28 @@ export default function FlagGamePage() {
         }
 
         setRound(createRound());
-        setSelected(null);
+        setSelectedId(null);
         setStatus("idle");
         setShowConfetti(false);
         setShowErrorEffect(false);
     };
 
-    const handleAnswer = (option: Flag) => {
+    const handleAnswer = (color: ColorDef) => {
         if (!round || status !== "idle") return;
 
-        setSelected(option);
-        const isCorrect = option.country === round.flag.country;
+        setSelectedId(color.id);
+        const isCorrect = color.id === round.target.id;
 
         if (isCorrect) {
             setStatus("correct");
             setCorrectCount((c) => c + 1);
             setShowConfetti(true);
-            // En este caso NO programamos timeout:
-            // dejamos que el propio Confetti llame a handleNext al terminar.
+            // El confeti llamará a handleNext cuando termine
         } else {
             setStatus("wrong");
             setWrongCount((c) => c + 1);
             setShowErrorEffect(true);
 
-            // El efecto rojo dura ~0.5s
             if (errorEffectTimeoutRef.current) {
                 clearTimeout(errorEffectTimeoutRef.current);
             }
@@ -110,36 +146,25 @@ export default function FlagGamePage() {
                 setShowErrorEffect(false);
             }, 600);
 
-            // Después de 3 segundos, nueva bandera al fallar
             if (autoNextTimeoutRef.current) {
                 clearTimeout(autoNextTimeoutRef.current);
             }
             autoNextTimeoutRef.current = setTimeout(() => {
                 handleNext();
-            }, 3000);
+            }, 2500);
         }
     };
 
-    useEffect(() => {
-        return () => {
-            if (autoNextTimeoutRef.current) {
-                clearTimeout(autoNextTimeoutRef.current);
-            }
-            if (errorEffectTimeoutRef.current) {
-                clearTimeout(errorEffectTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    const getOptionClasses = (option: Flag) => {
+    const getOptionClasses = (color: ColorDef) => {
         const base =
-            "flex items-center justify-center rounded-2xl border px-4 py-3 text-base font-semibold transition-all duration-150 shadow-md sm:text-lg";
+            "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-base font-semibold transition-all duration-150 shadow-md sm:text-lg";
 
         if (!round) return base + " border-zinc-800 bg-zinc-900/60";
 
-        const isSelected = selected?.country === option.country;
-        const isCorrectOption = option.country === round.flag.country;
+        const isSelected = selectedId === color.id;
+        const isCorrectOption = round && color.id === round.target.id;
 
+        // Estado normal
         if (status === "idle") {
             return (
                 base +
@@ -147,6 +172,7 @@ export default function FlagGamePage() {
             );
         }
 
+        // Si la ronda es correcta: solo el correcto en verde
         if (status === "correct") {
             if (isCorrectOption) {
                 return (
@@ -159,6 +185,7 @@ export default function FlagGamePage() {
 
         // status === "wrong"
         if (isCorrectOption) {
+            // La opción correcta en verde
             return (
                 base +
                 " border-emerald-500 bg-emerald-600 text-white shadow-lg shadow-emerald-700/40"
@@ -166,20 +193,23 @@ export default function FlagGamePage() {
         }
 
         if (isSelected) {
+            // La que has marcado mal en rojo
             return (
                 base +
                 " border-red-500 bg-red-600 text-white shadow-lg shadow-red-700/40"
             );
         }
 
+        // El resto apagadas
         return base + " border-zinc-800 bg-zinc-900/60 opacity-60";
     };
+
 
     if (!round) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-zinc-900 text-zinc-50 flex items-center justify-center px-4">
                 <main className="w-full max-w-3xl rounded-3xl border border-zinc-800 bg-zinc-950/80 p-8 shadow-2xl sm:p-10 text-center">
-                    <p className="text-zinc-400">Cargando bandera...</p>
+                    <p className="text-zinc-400">Preparando colores...</p>
                 </main>
             </div>
         );
@@ -188,20 +218,20 @@ export default function FlagGamePage() {
     return (
         <>
             <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-zinc-900 text-zinc-50 flex items-center justify-center px-4 overflow-hidden">
-                {/* Confeti al acertar: más denso y dejamos que él decida cuándo pasar de ronda */}
+                {/* Confeti al acertar */}
                 {showConfetti && (
                     <Confetti
-                        numberOfPieces={600}
+                        numberOfPieces={450}
                         recycle={false}
-                        tweenDuration={2600}
-                        onConfettiComplete={(confetti) => {
-                            confetti?.reset();
+                        tweenDuration={2200}
+                        onConfettiComplete={(instance) => {
+                            instance?.reset();
                             handleNext();
                         }}
                     />
                 )}
 
-                {/* Efecto contrario al confeti al fallar: flash rojo + shake */}
+                {/* Efecto de fallo: flash rojo + shake */}
                 {showErrorEffect && <div className="red-flash-overlay" />}
 
                 <main
@@ -211,8 +241,8 @@ export default function FlagGamePage() {
                     }
                 >
                     <div className="flex flex-col items-center gap-8">
-                        {/* Cabecera + marcadores + volver */}
-                        <div className="flex w-full items-center justify-between gap-4">
+                        {/* Cabecera + volver + marcadores */}
+                        <div className="flex w-full items-start justify-between gap-4">
                             <div className="flex flex-col gap-3 text-left">
                                 <Link
                                     href="/"
@@ -223,53 +253,54 @@ export default function FlagGamePage() {
                                 </Link>
                                 <div>
                                     <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
-                                        Juego de banderas
+                                        Juego de colores
                                     </p>
                                     <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">
-                                        ¿De qué país es esta bandera?
+                                        Elige el color correcto según la palabra
                                     </h1>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 text-xs sm:text-sm">
-                                <div className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 flex items-center gap-1">
-                                    <span>✅</span>
-                                    <span className="font-semibold">{correctCount}</span>
-                                </div>
-                                <div className="rounded-full border border-red-500/60 bg-red-500/10 px-3 py-1 flex items-center gap-1">
-                                    <span>❌</span>
-                                    <span className="font-semibold">{wrongCount}</span>
+                            <div className="flex flex-col items-end gap-2 text-xs sm:text-sm">
+                                <div className="flex items-center gap-2">
+                                    <div className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 flex items-center gap-1">
+                                        <span>✅</span>
+                                        <span className="font-semibold">{correctCount}</span>
+                                    </div>
+                                    <div className="rounded-full border border-red-500/60 bg-red-500/10 px-3 py-1 flex items-center gap-1">
+                                        <span>❌</span>
+                                        <span className="font-semibold">{wrongCount}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Bandera arriba centrada */}
+                        {/* Texto central con efecto Stroop */}
                         <div className="flex items-center justify-center">
-                            <div className="flex h-40 w-40 items-center justify-center rounded-3xl bg-zinc-900/80 border border-zinc-700 shadow-xl">
-                                <ReactCountryFlag
-                                    countryCode={round.flag.code}
-                                    svg
-                                    style={{
-                                        width: "4.5rem",
-                                        height: "4.5rem",
-                                        borderRadius: "0.75rem",
-                                        boxShadow: "0 12px 30px rgba(0,0,0,0.4)",
-                                    }}
-                                />
+                            <div className="flex h-40 w-100 items-center justify-center rounded-3xl bg-zinc-900/80 border border-zinc-700 shadow-xl">
+                                <span
+                                    className={
+                                        "text-4xl sm:text-5xl font-extrabold tracking-wide drop-shadow " +
+                                        round.displayColor.textClass
+                                    }
+                                >
+                                    {round.target.name}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Opciones abajo */}
+                        {/* Opciones: botones de colores + emojis */}
                         <div className="grid w-full gap-4 sm:grid-cols-2">
-                            {round.options.map((option) => (
+                            {COLORS.map((color) => (
                                 <button
-                                    key={option.country}
+                                    key={color.id}
                                     type="button"
-                                    onClick={() => handleAnswer(option)}
+                                    onClick={() => handleAnswer(color)}
                                     disabled={status !== "idle"}
-                                    className={getOptionClasses(option)}
+                                    className={getOptionClasses(color)}
                                 >
-                                    {option.country}
+                                    <span className="text-2xl">{color.emoji}</span>
+                                    <span>{color.name}</span>
                                 </button>
                             ))}
                         </div>
@@ -278,17 +309,14 @@ export default function FlagGamePage() {
                         <div className="flex w-full flex-col items-center gap-3 pt-2 text-center min-h-[3rem]">
                             {status === "correct" && (
                                 <p className="text-emerald-400 font-medium">
-                                    ✅ ¡Correcto! Era {round.flag.country}. Nueva bandera cuando
-                                    termine el confeti...
+                                    ✅ ¡Bien! Has elegido el color correcto según la palabra.
+                                    Nueva ronda cuando termine el confeti...
                                 </p>
                             )}
-                            {status === "wrong" && selected && (
+                            {status === "wrong" && (
                                 <p className="text-red-400 font-medium">
-                                    ❌ {selected.country} no es correcto. Era{" "}
-                                    <span className="text-emerald-300 font-semibold">
-                                        {round.flag.country}
-                                    </span>
-                                    . Nueva bandera en 3 segundos...
+                                    ❌ Aquí manda la palabra, no el color del texto. Nueva ronda
+                                    en un momento...
                                 </p>
                             )}
                         </div>
@@ -296,7 +324,7 @@ export default function FlagGamePage() {
                 </main>
             </div>
 
-            {/* Estilos globales para el efecto de fallo (lo contrario al confeti) */}
+            {/* Estilos globales para efecto de fallo (igual que en otros juegos) */}
             <style jsx global>{`
         @keyframes screen-shake {
           0% {

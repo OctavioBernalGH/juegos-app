@@ -2,30 +2,98 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import ReactCountryFlag from "react-country-flag";
-import countries from "world-countries";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
-type Flag = {
-    country: string;
-    code: string; // ISO 3166-1 alpha-2
+type Animal = {
+    id: string;
+    name: string;
+    emoji: string;
 };
 
 type Round = {
-    flag: Flag;
-    options: Flag[];
+    animal: Animal;
+    options: Animal[];
 };
 
-// Todas (o casi todas) las banderas posibles usando world-countries
-const FLAGS: Flag[] = countries
-    .filter((c: any) => typeof c.cca2 === "string" && c.cca2.length === 2)
-    .map((c: any) => ({
-        country: c.translations?.spa?.common || c.name.common,
-        code: c.cca2 as string,
-    }));
+// Pool grande de animales (puedes seguir añadiendo más aquí)
+const ANIMALS: Animal[] = [
+    { id: "perro", name: "Perro", emoji: "🐶" },
+    { id: "gato", name: "Gato", emoji: "🐱" },
+    { id: "raton", name: "Ratón", emoji: "🐭" },
+    { id: "hamster", name: "Hámster", emoji: "🐹" },
+    { id: "conejo", name: "Conejo", emoji: "🐰" },
+    { id: "zorro", name: "Zorro", emoji: "🦊" },
+    { id: "oso", name: "Oso", emoji: "🐻" },
+    { id: "panda", name: "Oso panda", emoji: "🐼" },
+    { id: "koala", name: "Koala", emoji: "🐨" },
+    { id: "tigre", name: "Tigre", emoji: "🐯" },
+    { id: "leon", name: "León", emoji: "🦁" },
+    { id: "vaca", name: "Vaca", emoji: "🐮" },
+    { id: "cerdo", name: "Cerdo", emoji: "🐷" },
+    { id: "cerdito", name: "Hocico de cerdo", emoji: "🐽" },
+    { id: "rana", name: "Rana", emoji: "🐸" },
+    { id: "mono", name: "Mono", emoji: "🐵" },
+    { id: "mono_ojos", name: "Mono tapándose los ojos", emoji: "🙈" },
+    { id: "mono_oidos", name: "Mono tapándose los oídos", emoji: "🙉" },
+    { id: "mono_boca", name: "Mono tapándose la boca", emoji: "🙊" },
+    { id: "pinguino", name: "Pingüino", emoji: "🐧" },
+    { id: "pajaro", name: "Pájaro", emoji: "🐦" },
+    { id: "pollito", name: "Pollito", emoji: "🐤" },
+    { id: "pollito_huevo", name: "Pollito saliendo del huevo", emoji: "🐣" },
+    { id: "pollo", name: "Pollo", emoji: "🐔" },
+    { id: "aguila", name: "Águila", emoji: "🦅" },
+    { id: "buho", name: "Búho", emoji: "🦉" },
+    { id: "pavo_real", name: "Pavo real", emoji: "🦚" },
+    { id: "pavo", name: "Pavo", emoji: "🦃" },
+    { id: "pato", name: "Pato", emoji: "🦆" },
+    { id: "cisne", name: "Cisne", emoji: "🦢" },
+    { id: "murcielago", name: "Murciélago", emoji: "🦇" },
+    { id: "lobo", name: "Lobo", emoji: "🐺" },
+    { id: "caballo", name: "Caballo", emoji: "🐴" },
+    { id: "cebra", name: "Cebra", emoji: "🦓" },
+    { id: "jirafa", name: "Jirafa", emoji: "🦒" },
+    { id: "camello", name: "Camello", emoji: "🐫" },
+    { id: "dromedario", name: "Dromedario", emoji: "🐪" },
+    { id: "elefante", name: "Elefante", emoji: "🐘" },
+    { id: "rinoceronte", name: "Rinoceronte", emoji: "🦏" },
+    { id: "hipopotamo", name: "Hipopótamo", emoji: "🦛" },
+    { id: "oso_polar", name: "Oso polar", emoji: "🐻‍❄️" },
+    { id: "ardilla", name: "Ardilla", emoji: "🐿️" },
+    { id: "erizo", name: "Erizo", emoji: "🦔" },
+    { id: "canguro", name: "Canguro", emoji: "🦘" },
+    { id: "tortuga", name: "Tortuga", emoji: "🐢" },
+    { id: "serpiente", name: "Serpiente", emoji: "🐍" },
+    { id: "lagarto", name: "Lagarto", emoji: "🦎" },
+    { id: "cocodrilo", name: "Cocodrilo", emoji: "🐊" },
+    { id: "delfin", name: "Delfín", emoji: "🐬" },
+    { id: "tiburon", name: "Tiburón", emoji: "🦈" },
+    { id: "ballena", name: "Ballena", emoji: "🐋" },
+    { id: "ballena_chorro", name: "Ballena expulsando agua", emoji: "🐳" },
+    { id: "pez", name: "Pez", emoji: "🐟" },
+    { id: "pez_tropical", name: "Pez tropical", emoji: "🐠" },
+    { id: "pez_globo", name: "Pez globo", emoji: "🐡" },
+    { id: "pulpo", name: "Pulpo", emoji: "🐙" },
+    { id: "cangrejo", name: "Cangrejo", emoji: "🦀" },
+    { id: "langosta", name: "Langosta", emoji: "🦞" },
+    { id: "gamba", name: "Gamba", emoji: "🦐" },
+    { id: "caracol", name: "Caracol", emoji: "🐌" },
+    { id: "mariposa", name: "Mariposa", emoji: "🦋" },
+    { id: "abeja", name: "Abeja", emoji: "🐝" },
+    { id: "escarabajo", name: "Escarabajo", emoji: "🪲" },
+    { id: "hormiga", name: "Hormiga", emoji: "🐜" },
+    { id: "araña", name: "Araña", emoji: "🕷️" },
+    { id: "escorpion", name: "Escorpión", emoji: "🦂" },
+    { id: "mosquito", name: "Mosquito", emoji: "🦟" },
+    { id: "mosca", name: "Mosca", emoji: "🪰" },
+    { id: "lombriz", name: "Lombriz", emoji: "🪱" },
+    { id: "sardina", name: "Sardina", emoji: "🐟" },
+    { id: "oso_perezoso", name: "Perezoso", emoji: "🦥" },
+    { id: "nutria", name: "Nutria", emoji: "🦦" },
+    { id: "castor", name: "Castor", emoji: "🦫" },
+];
 
 function shuffleArray<T>(array: T[]): T[] {
     const copy = [...array];
@@ -36,36 +104,46 @@ function shuffleArray<T>(array: T[]): T[] {
     return copy;
 }
 
-function createRound(): Round {
-    const correctFlag = FLAGS[Math.floor(Math.random() * FLAGS.length)];
-    const otherFlags = FLAGS.filter((f) => f.country !== correctFlag.country);
-    const randomOthers = shuffleArray(otherFlags).slice(0, 3);
-    const options = shuffleArray([correctFlag, ...randomOthers]);
+// Ahora createRound evita repetir el mismo animal que en la ronda anterior
+function createRound(excludeId?: string | null): Round {
+    let animal: Animal;
+
+    // Elegimos un animal distinto al de la ronda anterior (si hay más de 1)
+    do {
+        animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+    } while (excludeId && ANIMALS.length > 1 && animal.id === excludeId);
+
+    const otherAnimals = ANIMALS.filter((a) => a.id !== animal.id);
+    const randomOthers = shuffleArray(otherAnimals).slice(0, 3);
+    const options = shuffleArray([animal, ...randomOthers]);
 
     return {
-        flag: correctFlag,
+        animal,
         options,
     };
 }
 
-export default function FlagGamePage() {
+export default function AnimalsGamePage() {
     const [round, setRound] = useState<Round | null>(null);
-    const [selected, setSelected] = useState<Flag | null>(null);
+    const [selected, setSelected] = useState<Animal | null>(null);
     const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
     const [showConfetti, setShowConfetti] = useState(false);
     const [showErrorEffect, setShowErrorEffect] = useState(false);
 
     const [correctCount, setCorrectCount] = useState(0);
     const [wrongCount, setWrongCount] = useState(0);
+    const [lastAnimalId, setLastAnimalId] = useState<string | null>(null);
 
     const autoNextTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const errorEffectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
         null
     );
 
-    // Primera ronda sólo en cliente (evita errores de hidratación)
+    // Primera ronda sólo en cliente
     useEffect(() => {
-        setRound(createRound());
+        const firstRound = createRound(null);
+        setRound(firstRound);
+        setLastAnimalId(firstRound.animal.id);
     }, []);
 
     const handleNext = () => {
@@ -78,31 +156,31 @@ export default function FlagGamePage() {
             errorEffectTimeoutRef.current = null;
         }
 
-        setRound(createRound());
+        const newRound = createRound(lastAnimalId);
+        setRound(newRound);
+        setLastAnimalId(newRound.animal.id);
         setSelected(null);
         setStatus("idle");
         setShowConfetti(false);
         setShowErrorEffect(false);
     };
 
-    const handleAnswer = (option: Flag) => {
+    const handleAnswer = (option: Animal) => {
         if (!round || status !== "idle") return;
 
         setSelected(option);
-        const isCorrect = option.country === round.flag.country;
+        const isCorrect = option.id === round.animal.id;
 
         if (isCorrect) {
             setStatus("correct");
             setCorrectCount((c) => c + 1);
             setShowConfetti(true);
-            // En este caso NO programamos timeout:
-            // dejamos que el propio Confetti llame a handleNext al terminar.
+            // Confeti decide cuándo pasar de ronda
         } else {
             setStatus("wrong");
             setWrongCount((c) => c + 1);
             setShowErrorEffect(true);
 
-            // El efecto rojo dura ~0.5s
             if (errorEffectTimeoutRef.current) {
                 clearTimeout(errorEffectTimeoutRef.current);
             }
@@ -110,7 +188,6 @@ export default function FlagGamePage() {
                 setShowErrorEffect(false);
             }, 600);
 
-            // Después de 3 segundos, nueva bandera al fallar
             if (autoNextTimeoutRef.current) {
                 clearTimeout(autoNextTimeoutRef.current);
             }
@@ -131,14 +208,14 @@ export default function FlagGamePage() {
         };
     }, []);
 
-    const getOptionClasses = (option: Flag) => {
+    const getOptionClasses = (option: Animal) => {
         const base =
             "flex items-center justify-center rounded-2xl border px-4 py-3 text-base font-semibold transition-all duration-150 shadow-md sm:text-lg";
 
         if (!round) return base + " border-zinc-800 bg-zinc-900/60";
 
-        const isSelected = selected?.country === option.country;
-        const isCorrectOption = option.country === round.flag.country;
+        const isSelected = selected?.id === option.id;
+        const isCorrectOption = option.id === round.animal.id;
 
         if (status === "idle") {
             return (
@@ -179,7 +256,7 @@ export default function FlagGamePage() {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-zinc-900 text-zinc-50 flex items-center justify-center px-4">
                 <main className="w-full max-w-3xl rounded-3xl border border-zinc-800 bg-zinc-950/80 p-8 shadow-2xl sm:p-10 text-center">
-                    <p className="text-zinc-400">Cargando bandera...</p>
+                    <p className="text-zinc-400">Cargando animal...</p>
                 </main>
             </div>
         );
@@ -188,20 +265,20 @@ export default function FlagGamePage() {
     return (
         <>
             <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-zinc-900 text-zinc-50 flex items-center justify-center px-4 overflow-hidden">
-                {/* Confeti al acertar: más denso y dejamos que él decida cuándo pasar de ronda */}
+                {/* Confeti al acertar */}
                 {showConfetti && (
                     <Confetti
                         numberOfPieces={600}
                         recycle={false}
                         tweenDuration={2600}
-                        onConfettiComplete={(confetti) => {
-                            confetti?.reset();
+                        onConfettiComplete={(instance) => {
+                            instance?.reset();
                             handleNext();
                         }}
                     />
                 )}
 
-                {/* Efecto contrario al confeti al fallar: flash rojo + shake */}
+                {/* Efecto de fallo */}
                 {showErrorEffect && <div className="red-flash-overlay" />}
 
                 <main
@@ -211,7 +288,7 @@ export default function FlagGamePage() {
                     }
                 >
                     <div className="flex flex-col items-center gap-8">
-                        {/* Cabecera + marcadores + volver */}
+                        {/* Cabecera + volver + marcadores */}
                         <div className="flex w-full items-center justify-between gap-4">
                             <div className="flex flex-col gap-3 text-left">
                                 <Link
@@ -223,10 +300,10 @@ export default function FlagGamePage() {
                                 </Link>
                                 <div>
                                     <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
-                                        Juego de banderas
+                                        Juego de animales
                                     </p>
                                     <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">
-                                        ¿De qué país es esta bandera?
+                                        ¿Qué animal es este?
                                     </h1>
                                 </div>
                             </div>
@@ -243,19 +320,12 @@ export default function FlagGamePage() {
                             </div>
                         </div>
 
-                        {/* Bandera arriba centrada */}
+                        {/* Animal arriba centrado */}
                         <div className="flex items-center justify-center">
                             <div className="flex h-40 w-40 items-center justify-center rounded-3xl bg-zinc-900/80 border border-zinc-700 shadow-xl">
-                                <ReactCountryFlag
-                                    countryCode={round.flag.code}
-                                    svg
-                                    style={{
-                                        width: "4.5rem",
-                                        height: "4.5rem",
-                                        borderRadius: "0.75rem",
-                                        boxShadow: "0 12px 30px rgba(0,0,0,0.4)",
-                                    }}
-                                />
+                                <span className="text-7xl sm:text-8xl drop-shadow">
+                                    {round.animal.emoji}
+                                </span>
                             </div>
                         </div>
 
@@ -263,13 +333,13 @@ export default function FlagGamePage() {
                         <div className="grid w-full gap-4 sm:grid-cols-2">
                             {round.options.map((option) => (
                                 <button
-                                    key={option.country}
+                                    key={option.id}
                                     type="button"
                                     onClick={() => handleAnswer(option)}
                                     disabled={status !== "idle"}
                                     className={getOptionClasses(option)}
                                 >
-                                    {option.country}
+                                    {option.name}
                                 </button>
                             ))}
                         </div>
@@ -278,17 +348,17 @@ export default function FlagGamePage() {
                         <div className="flex w-full flex-col items-center gap-3 pt-2 text-center min-h-[3rem]">
                             {status === "correct" && (
                                 <p className="text-emerald-400 font-medium">
-                                    ✅ ¡Correcto! Era {round.flag.country}. Nueva bandera cuando
+                                    ✅ ¡Correcto! Era {round.animal.name}. Nuevo animal cuando
                                     termine el confeti...
                                 </p>
                             )}
                             {status === "wrong" && selected && (
                                 <p className="text-red-400 font-medium">
-                                    ❌ {selected.country} no es correcto. Era{" "}
+                                    ❌ {selected.name} no es correcto. Era{" "}
                                     <span className="text-emerald-300 font-semibold">
-                                        {round.flag.country}
+                                        {round.animal.name}
                                     </span>
-                                    . Nueva bandera en 3 segundos...
+                                    . Nuevo animal en 3 segundos...
                                 </p>
                             )}
                         </div>
@@ -296,7 +366,7 @@ export default function FlagGamePage() {
                 </main>
             </div>
 
-            {/* Estilos globales para el efecto de fallo (lo contrario al confeti) */}
+            {/* Estilos globales para efecto de fallo */}
             <style jsx global>{`
         @keyframes screen-shake {
           0% {
