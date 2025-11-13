@@ -9,20 +9,19 @@ export default function Home() {
         </h1>
 
         <p className="text-zinc-400 max-w-xl">
-          Elige un juego para empezar a jugar. Este será el menú principal de tu
-          colección de minijuegos en Next.js.
+          Elige un juego para empezar a jugar. Este es el menú principal de selección de juegos, se está trabajando para añadir más y más, gracias.
         </p>
 
         <div className="grid w-full max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
           <Link
-            href="/juegos/memoria"
+            href="/games/flag"
             className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
           >
             <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
-              Juego de Memoria
+              Juego de banderas
             </h2>
             <p className="text-sm text-zinc-400">
-              Cartas, parejas y memoria visual. Ideal para calentar neuronas.
+              Una bandera, cuatro opciones y solo una es correcta
             </p>
           </Link>
 
