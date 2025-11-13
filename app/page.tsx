@@ -5,12 +5,8 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-zinc-900 text-zinc-50 flex items-center justify-center px-4">
       <main className="w-full max-w-4xl flex flex-col items-center gap-10 text-center">
         <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight drop-shadow">
-          Juegos
+          Gaming Zone
         </h1>
-
-        <p className="text-zinc-400 max-w-xl">
-          Elige un juego para empezar a jugar. Este es el menú principal de selección de juegos, se está trabajando para añadir más y más, gracias.
-        </p>
 
         <div className="grid w-full max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
           <Link
@@ -26,15 +22,14 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/juegos/reflejos"
+            href="/games/memory"
             className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
           >
             <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
-              Reflejos
+              Juego de memoria
             </h2>
             <p className="text-sm text-zinc-400">
-              Pulsa a tiempo, mejora tu velocidad de reacción y compite contigo
-              mismo.
+              Gira las cartas para emparejarlas
             </p>
           </Link>
 
@@ -63,6 +58,41 @@ export default function Home() {
             </p>
           </Link>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-6 flex flex-col items-center gap-2 text-xs sm:text-sm text-zinc-500">
+          <span className="font-medium text-zinc-300">
+            Octavio Bernal
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <a
+              href="https://github.com/OctavioBernalGH"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-zinc-200 transition-colors underline underline-offset-4 decoration-zinc-600"
+            >
+              GitHub
+            </a>
+            <span className="text-zinc-600">•</span>
+            <a
+              href="https://www.linkedin.com/in/octavio-bernal-vilana-lk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-zinc-200 transition-colors underline underline-offset-4 decoration-zinc-600"
+            >
+              LinkedIn
+            </a>
+            <span className="text-zinc-600">•</span>
+            <a
+              href="https://www.octavio-bernal.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-zinc-200 transition-colors underline underline-offset-4 decoration-zinc-600"
+            >
+              Web personal
+            </a>
+          </div>
+        </footer>
       </main>
     </div>
   );

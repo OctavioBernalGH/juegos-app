@@ -1,21 +1,37 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { LucideIcon } from "lucide-react";
 import {
+  // navegación / UI
+  ChevronLeft,
+  // emociones
   Brain,
   Heart,
   Smile,
   Frown,
+  Laugh,
+  Meh,
+  // tecnología
   Cpu,
   Smartphone,
   Gamepad2,
+  Gamepad,
   Headphones,
+  Monitor,
+  Keyboard,
+  MousePointer,
+  Laptop,
+  // animales
   Cat,
   Dog,
   Bird,
   Bug,
+  Fish,
+  Rat,
+  // objetos / naturaleza
   Cloud,
   Sun,
   Moon,
@@ -24,6 +40,20 @@ import {
   Zap,
   Rocket,
   Car,
+  Pizza,
+  IceCream,
+  IceCream2,
+  Coffee,
+  Beer,
+  Cake,
+  Carrot,
+  Plane,
+  Train,
+  Truck,
+  TreeDeciduous,
+  TreePine,
+  Umbrella,
+  Tv,
 } from "lucide-react";
 
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
@@ -51,23 +81,37 @@ type Card = {
 
 const TOTAL_PAIRS = 8;
 
-// Base de iconos, más de 8 para tener variedad
+// Base de iconos, ahora con mucha más variedad
 const ICON_DEFS: IconDef[] = [
+  // Animales
   { id: "cat", icon: Cat, label: "Gato", theme: "animales", color: "text-orange-300" },
   { id: "dog", icon: Dog, label: "Perro", theme: "animales", color: "text-yellow-300" },
   { id: "bird", icon: Bird, label: "Pájaro", theme: "animales", color: "text-sky-300" },
   { id: "bug", icon: Bug, label: "Bicho", theme: "animales", color: "text-lime-300" },
+  { id: "fish", icon: Fish, label: "Pez", theme: "animales", color: "text-teal-300" },
+  { id: "rat", icon: Rat, label: "Rata", theme: "animales", color: "text-stone-300" },
 
+  // Tecnología
   { id: "cpu", icon: Cpu, label: "CPU", theme: "tecnologia", color: "text-cyan-300" },
   { id: "phone", icon: Smartphone, label: "Móvil", theme: "tecnologia", color: "text-blue-300" },
-  { id: "gamepad", icon: Gamepad2, label: "Mando", theme: "tecnologia", color: "text-purple-300" },
-  { id: "headphones", icon: Headphones, label: "Auriculares", theme: "tecnologia", color: "text-indigo-300" },
+  { id: "gamepad2", icon: Gamepad2, label: "Mando pro", theme: "tecnologia", color: "text-purple-300" },
+  { id: "gamepad", icon: Gamepad, label: "Mando", theme: "tecnologia", color: "text-indigo-300" },
+  { id: "headphones", icon: Headphones, label: "Auriculares", theme: "tecnologia", color: "text-indigo-200" },
+  { id: "monitor", icon: Monitor, label: "Monitor", theme: "tecnologia", color: "text-sky-200" },
+  { id: "keyboard", icon: Keyboard, label: "Teclado", theme: "tecnologia", color: "text-emerald-200" },
+  { id: "mousepointer", icon: MousePointer, label: "Puntero", theme: "tecnologia", color: "text-slate-200" },
+  { id: "laptop", icon: Laptop, label: "Portátil", theme: "tecnologia", color: "text-fuchsia-200" },
+  { id: "tv", icon: Tv, label: "Televisor", theme: "tecnologia", color: "text-amber-200" },
 
+  // Emociones
   { id: "heart", icon: Heart, label: "Amor", theme: "emociones", color: "text-rose-300" },
   { id: "smile", icon: Smile, label: "Alegría", theme: "emociones", color: "text-emerald-300" },
   { id: "frown", icon: Frown, label: "Tristeza", theme: "emociones", color: "text-slate-300" },
   { id: "brain", icon: Brain, label: "Concentración", theme: "emociones", color: "text-fuchsia-300" },
+  { id: "laugh", icon: Laugh, label: "Risa", theme: "emociones", color: "text-yellow-300" },
+  { id: "meh", icon: Meh, label: "Indiferente", theme: "emociones", color: "text-zinc-300" },
 
+  // Objetos / naturaleza / comida / transporte
   { id: "cloud", icon: Cloud, label: "Nube", theme: "objetos", color: "text-sky-300" },
   { id: "sun", icon: Sun, label: "Sol", theme: "objetos", color: "text-amber-300" },
   { id: "moon", icon: Moon, label: "Luna", theme: "objetos", color: "text-indigo-200" },
@@ -76,6 +120,19 @@ const ICON_DEFS: IconDef[] = [
   { id: "zap", icon: Zap, label: "Rayo", theme: "objetos", color: "text-yellow-400" },
   { id: "rocket", icon: Rocket, label: "Cohete", theme: "objetos", color: "text-red-300" },
   { id: "car", icon: Car, label: "Coche", theme: "objetos", color: "text-orange-400" },
+  { id: "pizza", icon: Pizza, label: "Pizza", theme: "objetos", color: "text-orange-300" },
+  { id: "icecream", icon: IceCream, label: "Helado", theme: "objetos", color: "text-rose-300" },
+  { id: "icecream2", icon: IceCream2, label: "Helado doble", theme: "objetos", color: "text-fuchsia-300" },
+  { id: "coffee", icon: Coffee, label: "Café", theme: "objetos", color: "text-stone-300" },
+  { id: "beer", icon: Beer, label: "Cerveza", theme: "objetos", color: "text-yellow-200" },
+  { id: "cake", icon: Cake, label: "Tarta", theme: "objetos", color: "text-purple-200" },
+  { id: "carrot", icon: Carrot, label: "Zanahoria", theme: "objetos", color: "text-orange-200" },
+  { id: "plane", icon: Plane, label: "Avión", theme: "objetos", color: "text-sky-200" },
+  { id: "train", icon: Train, label: "Tren", theme: "objetos", color: "text-emerald-200" },
+  { id: "truck", icon: Truck, label: "Camión", theme: "objetos", color: "text-slate-200" },
+  { id: "tree1", icon: TreeDeciduous, label: "Árbol", theme: "objetos", color: "text-green-300" },
+  { id: "tree2", icon: TreePine, label: "Pino", theme: "objetos", color: "text-emerald-300" },
+  { id: "umbrella", icon: Umbrella, label: "Paraguas", theme: "objetos", color: "text-blue-200" },
 ];
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -165,9 +222,7 @@ export default function MemoryGamePage() {
     if (card.isFlipped || card.isMatched) return;
     if (flippedIndices.length === 2) return;
 
-    const newCards = cards.map((c, i) =>
-      i === index ? { ...c, isFlipped: true } : c
-    );
+    const newCards = cards.map((c, i) => (i === index ? { ...c, isFlipped: true } : c));
     const newFlipped = [...flippedIndices, index];
 
     setCards(newCards);
@@ -243,16 +298,11 @@ export default function MemoryGamePage() {
     if (card.isFlipped) {
       return base + " border-zinc-700";
     }
-    return (
-      base +
-      " border-zinc-700 hover:border-zinc-500 hover:bg-zinc-900 cursor-pointer"
-    );
+    return base + " border-zinc-700 hover:border-zinc-500 hover:bg-zinc-900 cursor-pointer";
   };
 
   const getCardBackClass = () => {
-    return (
-      "absolute inset-0 rounded-2xl border border-zinc-700 bg-zinc-950/90 flex flex-col items-center justify-center gap-2 shadow-lg [backface-visibility:hidden] [transform:rotateY(180deg)]"
-    );
+    return "absolute inset-0 rounded-2xl border border-zinc-700 bg-zinc-950/90 flex flex-col items-center justify-center gap-2 shadow-lg [backface-visibility:hidden] [transform:rotateY(180deg)]";
   };
 
   if (!cards) {
@@ -291,15 +341,24 @@ export default function MemoryGamePage() {
           }
         >
           <div className="flex flex-col items-center gap-8">
-            {/* Cabecera + marcadores */}
-            <div className="flex w-full items-center justify-between gap-4">
-              <div className="text-left">
-                <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
-                  Juego de memoria
-                </p>
-                <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">
-                  Encuentra todas las parejas de iconos
-                </h1>
+            {/* Cabecera + botón volver + marcadores */}
+            <div className="flex w-full items-start justify-between gap-4">
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-[11px] font-medium text-zinc-200 hover:bg-zinc-800 hover:border-zinc-400 transition-colors"
+                >
+                  <ChevronLeft className="h-3 w-3" />
+                  Volver
+                </Link>
+                <div className="text-left">
+                  <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
+                    Juego de memoria
+                  </p>
+                  <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">
+                    Encuentra todas las parejas de iconos
+                  </h1>
+                </div>
               </div>
 
               <div className="flex flex-col items-end gap-2 text-xs sm:text-sm">
@@ -346,9 +405,7 @@ export default function MemoryGamePage() {
                       {/* Dorso (carta boca abajo / matched) */}
                       <div className={getCardFrontClass(card)}>
                         {!card.isFlipped && !card.isMatched && (
-                          <span className="text-sm font-semibold text-zinc-400">
-                            ?
-                          </span>
+                          <span className="text-sm font-semibold text-zinc-400">?</span>
                         )}
                         {card.isMatched && (
                           <Icon className={"h-8 w-8 sm:h-9 sm:w-9 " + card.color} />

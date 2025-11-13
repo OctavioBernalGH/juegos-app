@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactCountryFlag from "react-country-flag";
 import countries from "world-countries";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
@@ -209,15 +211,24 @@ export default function FlagGamePage() {
           }
         >
           <div className="flex flex-col items-center gap-8">
-            {/* Cabecera + marcadores */}
+            {/* Cabecera + marcadores + volver */}
             <div className="flex w-full items-center justify-between gap-4">
-              <div className="text-left">
-                <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
-                  Juego de banderas
-                </p>
-                <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">
-                  ¿De qué país es esta bandera?
-                </h1>
+              <div className="flex flex-col gap-3 text-left">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-[11px] font-medium text-zinc-200 hover:bg-zinc-800 hover:border-zinc-400 transition-colors"
+                >
+                <ChevronLeft className="h-3 w-3" />
+                  Volver
+                </Link>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
+                    Juego de banderas
+                  </p>
+                  <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">
+                    ¿De qué país es esta bandera?
+                  </h1>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 text-xs sm:text-sm">
