@@ -21,7 +21,7 @@ export default function Home() {
               Juego de banderas
             </h2>
             <p className="text-sm text-zinc-400">
-              Una bandera, cuatro opciones y solo una es correcta
+              Una bandera, cuatro opciones y solo una es correcta.
             </p>
           </Link>
 
