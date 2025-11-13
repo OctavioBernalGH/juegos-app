@@ -56,6 +56,31 @@ export default function Home() {
               Elige el color correcto según la palabra, no según el color del texto.
             </p>
           </Link>
+
+          <Link
+            href="/games/reaction"
+            className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
+          >
+            <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
+              Juego de reflejos
+            </h2>
+            <p className="text-sm text-zinc-400">
+              Espera al verde y toca lo más rápido posible. Mide tu tiempo en ms.
+            </p>
+          </Link>
+
+          <Link
+            href="/games/intruders"
+            className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
+          >
+            <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
+              Encuentra el intruso
+            </h2>
+            <p className="text-sm text-zinc-400">
+              Casi todos son de la misma categoría… descubre cuál no encaja.
+            </p>
+          </Link>
+
         </div>
 
         {/* Footer */}
