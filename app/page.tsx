@@ -50,7 +50,7 @@ export default function Home() {
             className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-6 text-left shadow-lg transition-transform duration-200 hover:-translate-y-1 hover:border-zinc-500 hover:bg-zinc-900/90"
           >
             <h2 className="mb-2 text-xl font-semibold group-hover:text-white">
-              Colores
+              Juego de Colores
             </h2>
             <p className="text-sm text-zinc-400">
               Elige el color correcto según la palabra, no según el color del texto.
